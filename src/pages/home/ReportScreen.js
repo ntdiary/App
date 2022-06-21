@@ -24,6 +24,8 @@ import reportActionPropTypes from './report/reportActionPropTypes';
 import ArchivedReportFooter from '../../components/ArchivedReportFooter';
 import toggleReportActionComposeView from '../../libs/toggleReportActionComposeView';
 import * as PolicyUtils from '../../libs/PolicyUtils';
+import compose from '../../libs/compose';
+import withWindowDimensions, {windowDimensionsPropTypes} from '../../components/withWindowDimensions';
 
 const propTypes = {
     /** Navigation route context info provided by react navigation */
@@ -75,6 +77,10 @@ const propTypes = {
         /** The type of the policy */
         type: PropTypes.string,
     })).isRequired,
+
+    previousReportID: PropTypes.string,
+
+    ...windowDimensionsPropTypes,
 };
 
 const defaultProps = {
@@ -88,6 +94,7 @@ const defaultProps = {
         maxSequenceNumber: 0,
         hasOutstandingIOU: false,
     },
+    previousReportID: '',
     isComposerFullSize: false,
     betas: [],
 };
@@ -195,27 +202,41 @@ class ReportScreen extends React.Component {
             return null;
         }
 
+        let reportID;
+        let report;
+        let reportActions;
+        if (this.props.isSmallScreenWidth) {
+            reportID = Number.parseInt(this.props.previousReportID, 10);
+            report = Report.getPreviousReport();
+            reportActions = Report.getPreviousReportActions();
+        } else {
+            reportID = getReportID(this.props.route);
+            report = this.props.report;
+            reportActions = this.props.reportActions;
+        }
+        if (!reportID) {
+            return null;
+        }
+
         // If one is a member of a free policy, then they are allowed to see the Policy default rooms.
         // For everyone else, one must be on the beta to see a default room.
         const isMemberOfFreePolicy = PolicyUtils.isMemberOfFreePolicy(this.props.policies);
         if (isMemberOfFreePolicy && !Permissions.canUseDefaultRooms(this.props.betas)) {
-            if (ReportUtils.isDomainRoom(this.props.report)) {
+            if (ReportUtils.isDomainRoom(report)) {
                 return null;
             }
-        } else if (ReportUtils.isDefaultRoom(this.props.report) && !Permissions.canUseDefaultRooms(this.props.betas)) {
+        } else if (ReportUtils.isDefaultRoom(report) && !Permissions.canUseDefaultRooms(this.props.betas)) {
             return null;
         }
 
-        if (!Permissions.canUsePolicyRooms(this.props.betas) && ReportUtils.isUserCreatedPolicyRoom(this.props.report)) {
+        if (!Permissions.canUsePolicyRooms(this.props.betas) && ReportUtils.isUserCreatedPolicyRoom(report)) {
             return null;
         }
 
-        const reportID = getReportID(this.props.route);
-
-        const isArchivedRoom = ReportUtils.isArchivedRoom(this.props.report);
+        const isArchivedRoom = ReportUtils.isArchivedRoom(report);
         let reportClosedAction;
         if (isArchivedRoom) {
-            reportClosedAction = lodashFindLast(this.props.reportActions, action => action.actionName === CONST.REPORT.ACTIONS.TYPE.CLOSED);
+            reportClosedAction = lodashFindLast(reportActions, action => action.actionName === CONST.REPORT.ACTIONS.TYPE.CLOSED);
         }
 
         return (
@@ -234,8 +255,8 @@ class ReportScreen extends React.Component {
                         {!this.shouldShowLoader() && (
                             <ReportActionsView
                                 reportID={reportID}
-                                reportActions={this.props.reportActions}
-                                report={this.props.report}
+                                reportActions={reportActions}
+                                report={report}
                                 session={this.props.session}
                                 isComposerFullSize={this.props.isComposerFullSize}
                             />
@@ -247,15 +268,15 @@ class ReportScreen extends React.Component {
                                     ? (
                                         <ArchivedReportFooter
                                             reportClosedAction={reportClosedAction}
-                                            report={this.props.report}
+                                            report={report}
                                         />
                                     ) : (
                                         <SwipeableView onSwipeDown={Keyboard.dismiss}>
                                             <ReportActionCompose
                                                 onSubmit={this.onSubmitComment}
                                                 reportID={reportID}
-                                                reportActions={this.props.reportActions}
-                                                report={this.props.report}
+                                                reportActions={reportActions}
+                                                report={report}
                                                 isComposerFullSize={this.props.isComposerFullSize}
                                             />
                                         </SwipeableView>
@@ -273,27 +294,33 @@ class ReportScreen extends React.Component {
 ReportScreen.propTypes = propTypes;
 ReportScreen.defaultProps = defaultProps;
 
-export default withOnyx({
-    isSidebarLoaded: {
-        key: ONYXKEYS.IS_SIDEBAR_LOADED,
-    },
-    session: {
-        key: ONYXKEYS.SESSION,
-    },
-    reportActions: {
-        key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${getReportID(route)}`,
-        canEvict: false,
-    },
-    report: {
-        key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT}${getReportID(route)}`,
-    },
-    isComposerFullSize: {
-        key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_IS_COMPOSER_FULL_SIZE}${getReportID(route)}`,
-    },
-    betas: {
-        key: ONYXKEYS.BETAS,
-    },
-    policies: {
-        key: ONYXKEYS.COLLECTION.POLICY,
-    },
-})(ReportScreen);
+export default compose(
+    withWindowDimensions,
+    withOnyx({
+        isSidebarLoaded: {
+            key: ONYXKEYS.IS_SIDEBAR_LOADED,
+        },
+        session: {
+            key: ONYXKEYS.SESSION,
+        },
+        reportActions: {
+            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${getReportID(route)}`,
+            canEvict: false,
+        },
+        report: {
+            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT}${getReportID(route)}`,
+        },
+        previousReportID: {
+            key: ONYXKEYS.PREVIOUS_REPORTID,
+        },
+        isComposerFullSize: {
+            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_IS_COMPOSER_FULL_SIZE}${getReportID(route)}`,
+        },
+        betas: {
+            key: ONYXKEYS.BETAS,
+        },
+        policies: {
+            key: ONYXKEYS.COLLECTION.POLICY,
+        },
+    }),
+)(ReportScreen);

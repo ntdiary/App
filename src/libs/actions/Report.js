@@ -56,6 +56,7 @@ Onyx.connect({
 });
 
 const allReports = {};
+const allReportActions = {};
 let conciergeChatReportID;
 const typingWatchTimers = {};
 
@@ -1207,6 +1208,46 @@ function updateCurrentlyViewedReportID(reportID) {
     Onyx.merge(ONYXKEYS.CURRENTLY_VIEWED_REPORTID, String(reportID));
 }
 
+/**
+ * @param {Number} reportID
+ * @param {Boolean} shouldNavigate
+ */
+function updatePreviousReportID(reportID, shouldNavigate = true) {
+    if (shouldNavigate) {
+        Navigation.navigate(ROUTES.getReportRoute(reportID));
+    }
+    Onyx.merge(ONYXKEYS.PREVIOUS_REPORTID, String(reportID));
+}
+
+let previousReportID;
+Onyx.connect({
+    key: ONYXKEYS.PREVIOUS_REPORTID,
+    callback: val => previousReportID = val,
+});
+
+function getPreviousReportID() {
+    return previousReportID;
+}
+
+function getPreviousReport() {
+    return allReports[previousReportID];
+}
+
+function getPreviousReportActions() {
+    return allReportActions[previousReportID];
+}
+
+Onyx.connect({
+    key: ONYXKEYS.COLLECTION.REPORT_ACTIONS,
+    callback: (actions, key) => {
+        const id = parseInt(key.split('_')[1], 10);
+        if (!id) {
+            return;
+        }
+        allReportActions[id] = actions;
+    },
+});
+
 Onyx.connect({
     key: ONYXKEYS.COLLECTION.REPORT,
     callback: handleReportChanged,
@@ -1546,4 +1587,8 @@ export {
     renameReport,
     getLastReadSequenceNumber,
     setIsComposerFullSize,
+    updatePreviousReportID,
+    getPreviousReportID,
+    getPreviousReport,
+    getPreviousReportActions,
 };

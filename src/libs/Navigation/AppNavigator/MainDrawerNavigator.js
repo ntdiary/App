@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import lodashGet from 'lodash/get';
 import {withOnyx} from 'react-native-onyx';
@@ -15,6 +15,7 @@ import BaseDrawerNavigator from './BaseDrawerNavigator';
 import * as ReportUtils from '../../ReportUtils';
 import * as PolicyUtils from '../../PolicyUtils';
 import CONST from '../../../CONST';
+import * as Report from '../../actions/Report';
 
 const propTypes = {
     /** Available reports that would be displayed in this navigator */
@@ -75,6 +76,10 @@ const MainDrawerNavigator = (props) => {
     if (!initialParams.reportID) {
         return <FullScreenLoadingIndicator logDetail={{name: 'Main Drawer Loader', initialParams}} />;
     }
+
+    useEffect(() => {
+        Report.updatePreviousReportID(Number(initialParams.reportID), false);
+    }, []);
 
     // After the app initializes and reports are available the home navigation is mounted
     // This way routing information is updated (if needed) based on the initial report ID resolved.

@@ -27,6 +27,7 @@ import * as App from '../../../libs/actions/App';
 import * as ReportUtils from '../../../libs/ReportUtils';
 import networkPropTypes from '../../../components/networkPropTypes';
 import {withNetwork} from '../../../components/OnyxProvider';
+import * as Report from '../../../libs/actions/Report';
 
 const propTypes = {
     /** Toggles the navigation menu open and closed */
@@ -304,7 +305,11 @@ class SidebarLinks extends React.Component {
                         option => option.reportID === activeReportID
                     ))}
                     onSelectRow={(option) => {
-                        Navigation.navigate(ROUTES.getReportRoute(option.reportID));
+                        if (this.props.isSmallScreenWidth) {
+                            Report.updatePreviousReportID(option.reportID);
+                        } else {
+                            Navigation.navigate(ROUTES.getReportRoute(option.reportID));
+                        }
                         this.props.onLinkClick();
                     }}
                     optionBackgroundColor={themeColors.sidebar}

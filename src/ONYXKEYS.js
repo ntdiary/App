@@ -37,6 +37,9 @@ export default {
     // Currently viewed reportID
     CURRENTLY_VIEWED_REPORTID: 'currentlyViewedReportID',
 
+    // Currently viewed reportID
+    PREVIOUS_REPORTID: 'previousReportID',
+
     // Credentials to authenticate the user
     CREDENTIALS: 'credentials',
 
