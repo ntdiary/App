@@ -62,7 +62,9 @@ class ButtonWithMenu extends PureComponent {
                         isLoading={this.props.isLoading}
                         onButtonPress={event => this.props.onPress(event, this.state.selectedItem.value)}
                         onDropdownPress={() => {
-                            this.setMenuVisibility(true);
+                            setTimeout(() => {
+                                this.setMenuVisibility(true);
+                            }, 200);
                         }}
                     />
                 ) : (

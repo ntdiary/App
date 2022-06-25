@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import {View} from 'react-native';
+import {View, Dimensions} from 'react-native';
 import PropTypes from 'prop-types';
 import ReactNativeModal from 'react-native-modal';
 import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
@@ -27,6 +27,17 @@ class BaseModal extends PureComponent {
         super(props);
 
         this.hideModal = this.hideModal.bind(this);
+
+        this.onDimensionChange = this.onDimensionChange.bind(this);
+        const initialDimensions = Dimensions.get('window');
+        this.dimensionsEventListener = null;
+        this.state = {
+            windowHeight: initialDimensions.height,
+        };
+    }
+
+    componentDidMount() {
+        this.dimensionsEventListener = Dimensions.addEventListener('change', this.onDimensionChange);
     }
 
     componentDidUpdate(prevProps) {
@@ -40,6 +51,23 @@ class BaseModal extends PureComponent {
     componentWillUnmount() {
         // we don't want to call the onModalHide on unmount
         this.hideModal(this.props.isVisible);
+        if (!this.dimensionsEventListener) {
+            return;
+        }
+        this.dimensionsEventListener.remove();
+    }
+
+    /**
+     * Stores the application window's width and height in a component state variable.
+     * Called each time the application's window dimensions or screen dimensions change.
+     * @link https://reactnative.dev/docs/dimensions
+     * @param {Object} newDimensions Dimension object containing updated window and screen dimensions
+     */
+    onDimensionChange(newDimensions) {
+        const {window} = newDimensions;
+        this.setState({
+            windowHeight: window.height,
+        });
     }
 
     /**
@@ -104,7 +132,7 @@ class BaseModal extends PureComponent {
                 hasBackdrop={this.props.fullscreen}
                 coverScreen={this.props.fullscreen}
                 style={modalStyle}
-                deviceHeight={this.props.windowHeight}
+                deviceHeight={this.state.windowHeight}
                 deviceWidth={this.props.windowWidth}
                 animationIn={this.props.animationIn || animationIn}
                 animationOut={this.props.animationOut || animationOut}
