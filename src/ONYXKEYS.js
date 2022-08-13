@@ -186,4 +186,7 @@ export default {
     FORMS: {
         ADD_DEBIT_CARD_FORM: 'addDebitCardForm',
     },
+
+    // sidebar status
+    SIDEBAR_STATUS: 'sidebarStatus',
 };

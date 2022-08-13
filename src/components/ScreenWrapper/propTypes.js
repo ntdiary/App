@@ -28,6 +28,8 @@ const propTypes = {
         /** Indicates when an Alert modal is about to be visible */
         willAlertModalBecomeVisible: PropTypes.bool,
     }),
+
+    screenRef: PropTypes.func,
 };
 
 const defaultProps = {
@@ -37,6 +39,7 @@ const defaultProps = {
     onTransitionEnd: () => {},
     modal: {},
     keyboardAvoidingViewBehavior: 'padding',
+    screenRef: () => {},
 };
 
 export {propTypes, defaultProps};

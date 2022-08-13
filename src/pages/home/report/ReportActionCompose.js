@@ -96,6 +96,9 @@ const propTypes = {
         expiresAt: PropTypes.string,
     }),
 
+    // sidebar status (opened or closed)
+    sidebarStatus: PropTypes.string,
+
     ...windowDimensionsPropTypes,
     ...withLocalizePropTypes,
     ...withCurrentUserPersonalDetailsPropTypes,
@@ -108,6 +111,7 @@ const defaultProps = {
     reportActions: {},
     blockedFromConcierge: {},
     personalDetails: {},
+    sidebarStatus: '',
     ...withCurrentUserPersonalDetailsDefaultProps,
 };
 
@@ -129,6 +133,7 @@ class ReportActionCompose extends React.Component {
         this.getInputPlaceholder = this.getInputPlaceholder.bind(this);
         this.getIOUOptions = this.getIOUOptions.bind(this);
         this.addAttachment = this.addAttachment.bind(this);
+        this.shouldAutoFocus = this.shouldAutoFocus.bind(this);
 
         this.comment = props.comment;
         this.shouldFocusInputOnScreenFocus = canFocusInputOnScreenFocus();
@@ -160,6 +165,10 @@ class ReportActionCompose extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
+        if (this.shouldAutoFocus(prevProps)) {
+            this.focus();
+        }
+
         const sidebarOpened = !prevProps.isDrawerOpen && this.props.isDrawerOpen;
         if (sidebarOpened) {
             toggleReportActionComposeView(true);
@@ -301,6 +310,12 @@ class ReportActionCompose extends React.Component {
             maxLines = CONST.COMPOSER.MAX_LINES_FULL;
         }
         this.setState({maxLines});
+    }
+
+    shouldAutoFocus(prevProps) {
+        return prevProps.sidebarStatus === 'opened'
+            && this.props.sidebarStatus === 'closed'
+            && (this.shouldFocusInputOnScreenFocus || _.size(this.props.reportActions) === 1);
     }
 
     /**
@@ -594,7 +609,7 @@ class ReportActionCompose extends React.Component {
                                 </AttachmentPicker>
                                 <View style={styles.textInputComposeSpacing}>
                                     <Composer
-                                        autoFocus={this.shouldFocusInputOnScreenFocus || _.size(this.props.reportActions) === 1}
+                                        autoFocus={!this.props.sidebarStatus && (this.shouldFocusInputOnScreenFocus || _.size(this.props.reportActions) === 1)}
                                         multiline
                                         ref={this.setTextInputRef}
                                         textAlignVertical="top"
@@ -710,6 +725,9 @@ export default compose(
         },
         blockedFromConcierge: {
             key: ONYXKEYS.NVP_BLOCKED_FROM_CONCIERGE,
+        },
+        sidebarStatus: {
+            key: ONYXKEYS.SIDEBAR_STATUS,
         },
     }),
 )(ReportActionCompose);

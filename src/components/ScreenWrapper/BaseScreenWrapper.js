@@ -71,6 +71,7 @@ class BaseScreenWrapper extends React.Component {
 
                     return (
                         <View
+                            ref={this.props.screenRef}
                             style={[
                                 ...this.props.style,
                                 styles.flex1,

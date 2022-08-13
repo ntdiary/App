@@ -254,6 +254,10 @@ function openProfile() {
     Navigation.navigate(ROUTES.SETTINGS_PROFILE);
 }
 
+function changeSideBarStatus(value) {
+    Onyx.set(ONYXKEYS.SIDEBAR_STATUS, value);
+}
+
 export {
     setLocale,
     setSidebarLoaded,
@@ -263,4 +267,5 @@ export {
     openProfile,
     openApp,
     reconnectApp,
+    changeSideBarStatus,
 };
