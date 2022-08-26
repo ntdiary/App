@@ -26,6 +26,7 @@ import addViewportResizeListener from '../../libs/VisualViewport';
 import {withNetwork} from '../../components/OnyxProvider';
 import compose from '../../libs/compose';
 import networkPropTypes from '../../components/networkPropTypes';
+import withDrawerProgress, {withDrawerProgressPropTypes} from '../../components/withDrawerProgress';
 
 const propTypes = {
     /** Navigation route context info provided by react navigation */
@@ -83,6 +84,8 @@ const propTypes = {
 
     /** Information about the network */
     network: networkPropTypes.isRequired,
+
+    ...withDrawerProgressPropTypes,
 };
 
 const defaultProps = {
@@ -105,14 +108,12 @@ const defaultProps = {
 /**
  * Get the currently viewed report ID as number
  *
- * @param {Object} route
- * @param {Object} route.params
- * @param {String} route.params.reportID
+ * @param {Object} props
  * @returns {Number}
  */
-function getReportID(route) {
-    const params = route.params;
-    return Number.parseInt(params.reportID, 10);
+function getReportID(props) {
+    const params = props.route.params;
+    return Number.parseInt(props.reportId || params.reportID, 10);
 }
 
 class ReportScreen extends React.Component {
@@ -130,18 +131,26 @@ class ReportScreen extends React.Component {
     }
 
     componentDidMount() {
+        // TODO:del
+        console.log(`mounted: reportId ${getReportID(this.props)}`);
         this.storeCurrentlyViewedReport();
         this.removeViewportResizeListener = addViewportResizeListener(this.updateViewportOffsetTop);
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.route.params.reportID === prevProps.route.params.reportID) {
+        if (this.props.progress !== prevProps.progress) {
+            // TODO:del
+            console.log(`progress: ${this.props.progress}`);
+        }
+        if (getReportID(this.props) === getReportID(prevProps)) {
             return;
         }
         this.storeCurrentlyViewedReport();
     }
 
     componentWillUnmount() {
+        // TODO:del
+        console.log(`unmount: reportId ${getReportID(this.props)}`);
         this.removeViewportResizeListener();
     }
 
@@ -149,7 +158,7 @@ class ReportScreen extends React.Component {
      * @param {String} text
      */
     onSubmitComment(text) {
-        Report.addComment(getReportID(this.props.route), text);
+        Report.addComment(getReportID(this.props), text);
     }
 
     setChatFooterStyles(isOffline) {
@@ -165,14 +174,14 @@ class ReportScreen extends React.Component {
     shouldShowLoader() {
         // This means there are no reportActions at all to display, but it is still in the process of loading the next set of actions.
         const isLoadingInitialReportActions = _.isEmpty(this.props.reportActions) && this.props.report.isLoadingReportActions;
-        return !getReportID(this.props.route) || isLoadingInitialReportActions;
+        return !getReportID(this.props) || isLoadingInitialReportActions;
     }
 
     /**
      * Persists the currently viewed report id
      */
     storeCurrentlyViewedReport() {
-        const reportID = getReportID(this.props.route);
+        const reportID = getReportID(this.props);
         if (_.isNaN(reportID)) {
             Report.handleInaccessibleReport();
             return;
@@ -207,7 +216,7 @@ class ReportScreen extends React.Component {
             return null;
         }
 
-        const reportID = getReportID(this.props.route);
+        const reportID = getReportID(this.props);
 
         const isArchivedRoom = ReportUtils.isArchivedRoom(this.props.report);
         let reportClosedAction;
@@ -215,7 +224,7 @@ class ReportScreen extends React.Component {
             reportClosedAction = lodashFindLast(this.props.reportActions, action => action.actionName === CONST.REPORT.ACTIONS.TYPE.CLOSED);
         }
         return (
-            <ScreenWrapper style={[styles.appContent, styles.flex1, {marginTop: this.state.viewportOffsetTop}]}>
+            <ScreenWrapper style={[styles.appContent, styles.flex1, {marginTop: this.state.viewportOffsetTop, opacity: this.props.progress}]}>
                 <HeaderView
                     reportID={reportID}
                     onNavigationMenuButtonClicked={() => Navigation.navigate(ROUTES.HOME)}
@@ -234,6 +243,7 @@ class ReportScreen extends React.Component {
                         )
                         : (
                             <ReportActionsView
+                                progress={this.props.progress}
                                 reportActions={this.props.reportActions}
                                 report={this.props.report}
                                 session={this.props.session}
@@ -273,6 +283,7 @@ ReportScreen.propTypes = propTypes;
 ReportScreen.defaultProps = defaultProps;
 
 export default compose(
+    withDrawerProgress,
     withNetwork(),
     withOnyx({
         isSidebarLoaded: {
@@ -282,14 +293,14 @@ export default compose(
             key: ONYXKEYS.SESSION,
         },
         reportActions: {
-            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${getReportID(route)}`,
+            key: props => `${ONYXKEYS.COLLECTION.REPORT_ACTIONS}${getReportID(props)}`,
             canEvict: false,
         },
         report: {
-            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT}${getReportID(route)}`,
+            key: props => `${ONYXKEYS.COLLECTION.REPORT}${getReportID(props)}`,
         },
         isComposerFullSize: {
-            key: ({route}) => `${ONYXKEYS.COLLECTION.REPORT_IS_COMPOSER_FULL_SIZE}${getReportID(route)}`,
+            key: props => `${ONYXKEYS.COLLECTION.REPORT_IS_COMPOSER_FULL_SIZE}${getReportID(props)}`,
         },
         betas: {
             key: ONYXKEYS.BETAS,

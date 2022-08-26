@@ -791,6 +791,12 @@ const CONST = {
         LEAVE_ROOM: 'leaveRoom',
     },
     IOS_KEYBOARD_SPACE_OFFSET: -30,
+    SIDEBAR_TRANSITION: {
+        CLOSING: 'closing',
+        CLOSED: 'closed',
+        OPENING: 'opening',
+        OPENED: 'opened',
+    },
 };
 
 export default CONST;
