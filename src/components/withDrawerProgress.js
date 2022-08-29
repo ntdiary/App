@@ -10,26 +10,27 @@ const withDrawerProgressPropTypes = {
     progress: PropTypes.oneOf(_.values(CONST.SIDEBAR_TRANSITION)),
 };
 
+// it can fix another issue.
 let prevReportID = null;
 
 export default function withDrawerProgress(WrappedComponent) {
     const WightDrawerProgress = (props) => {
         const [progress, setProgress] = useState(null);
 
-        let previousValue = 0;
+        let prevValue = 0;
         const drawerProgress = useDrawerProgress();
-
-        useCode(() => call([drawerProgress], ([val]) => {
-            if (val <= 0) {
+        useCode(() => call([drawerProgress], ([value]) => {
+            // 0 means closed completely, we could set it to 0.01 (spring threshold), so that it can be triggered earlier.
+            if (value <= 0.01) {
                 setProgress(CONST.SIDEBAR_TRANSITION.CLOSED);
-            } else if (val >= 1) {
+            } else if (value >= 1) {
                 setProgress(CONST.SIDEBAR_TRANSITION.OPENED);
-            } else if (val > previousValue) {
+            } else if (value > prevValue) {
                 setProgress(CONST.SIDEBAR_TRANSITION.OPENING);
-            } else if (val < previousValue) {
+            } else if (value < prevValue) {
                 setProgress(CONST.SIDEBAR_TRANSITION.CLOSING);
             }
-            previousValue = val;
+            prevValue = value;
         }), [drawerProgress]);
 
         const drawerStatus = useDrawerStatus();

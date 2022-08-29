@@ -24,7 +24,7 @@ import PopoverMenu from '../../../components/PopoverMenu';
 import withWindowDimensions, {windowDimensionsPropTypes} from '../../../components/withWindowDimensions';
 import withDrawerState from '../../../components/withDrawerState';
 import CONST from '../../../CONST';
-import canFocusInputOnScreenFocus from '../../../libs/canFocusInputOnScreenFocus';
+import canAutoFocusOnReportActionCompose from '../../../libs/canAutoFocusOnReportActionCompose';
 import withLocalize, {withLocalizePropTypes} from '../../../components/withLocalize';
 import Permissions from '../../../libs/Permissions';
 import Navigation from '../../../libs/Navigation/Navigation';
@@ -45,6 +45,7 @@ import toggleReportActionComposeView from '../../../libs/toggleReportActionCompo
 import OfflineIndicator from '../../../components/OfflineIndicator';
 import ExceededCommentLength from '../../../components/ExceededCommentLength';
 import withNavigationFocus from '../../../components/withNavigationFocus';
+import {withDrawerProgressPropTypes} from '../../../components/withDrawerProgress';
 
 const propTypes = {
     /** Beta features list */
@@ -99,6 +100,7 @@ const propTypes = {
     ...windowDimensionsPropTypes,
     ...withLocalizePropTypes,
     ...withCurrentUserPersonalDetailsPropTypes,
+    ...withDrawerProgressPropTypes,
 };
 
 const defaultProps = {
@@ -131,7 +133,7 @@ class ReportActionCompose extends React.Component {
         this.addAttachment = this.addAttachment.bind(this);
 
         this.comment = props.comment;
-        this.shouldFocusInputOnScreenFocus = canFocusInputOnScreenFocus();
+        this.shouldFocusInputOnScreenFocus = canAutoFocusOnReportActionCompose();
 
         this.state = {
             isFocused: this.shouldFocusInputOnScreenFocus,
@@ -171,6 +173,17 @@ class ReportActionCompose extends React.Component {
         if (this.shouldFocusInputOnScreenFocus && this.props.isFocused
             && prevProps.modal.isVisible && !this.props.modal.isVisible) {
             this.focus();
+        }
+
+        if (prevProps.progress === CONST.SIDEBAR_TRANSITION.CLOSING
+            && this.props.progress === CONST.SIDEBAR_TRANSITION.CLOSED) {
+            if (_.size(this.props.reportActions) === 1) {
+                this.textInput.focus();
+            }
+        } else if (this.props.progress === CONST.SIDEBAR_TRANSITION.CLOSED) {
+            if (_.size(prevProps.reportActions) === 0 && _.size(this.props.reportActions) === 1) {
+                this.textInput.focus();
+            }
         }
 
         if (this.props.isComposerFullSize !== prevProps.isComposerFullSize) {
@@ -593,8 +606,9 @@ class ReportActionCompose extends React.Component {
                                     )}
                                 </AttachmentPicker>
                                 <View style={styles.textInputComposeSpacing}>
+                                    {/* if we want to keep same animation sequence for mobile web, we can delete `autoFocus` prop */}
                                     <Composer
-                                        autoFocus={this.shouldFocusInputOnScreenFocus || _.size(this.props.reportActions) === 1}
+                                        autoFocus={this.shouldFocusInputOnScreenFocus && _.size(this.props.reportActions) === 1}
                                         multiline
                                         ref={this.setTextInputRef}
                                         textAlignVertical="top"

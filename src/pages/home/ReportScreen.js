@@ -131,17 +131,11 @@ class ReportScreen extends React.Component {
     }
 
     componentDidMount() {
-        // TODO:del
-        console.log(`mounted: reportId ${getReportID(this.props)}`);
         this.storeCurrentlyViewedReport();
         this.removeViewportResizeListener = addViewportResizeListener(this.updateViewportOffsetTop);
     }
 
     componentDidUpdate(prevProps) {
-        if (this.props.progress !== prevProps.progress) {
-            // TODO:del
-            console.log(`progress: ${this.props.progress}`);
-        }
         if (getReportID(this.props) === getReportID(prevProps)) {
             return;
         }
@@ -149,8 +143,6 @@ class ReportScreen extends React.Component {
     }
 
     componentWillUnmount() {
-        // TODO:del
-        console.log(`unmount: reportId ${getReportID(this.props)}`);
         this.removeViewportResizeListener();
     }
 
@@ -224,7 +216,7 @@ class ReportScreen extends React.Component {
             reportClosedAction = lodashFindLast(this.props.reportActions, action => action.actionName === CONST.REPORT.ACTIONS.TYPE.CLOSED);
         }
         return (
-            <ScreenWrapper style={[styles.appContent, styles.flex1, {marginTop: this.state.viewportOffsetTop, opacity: this.props.progress}]}>
+            <ScreenWrapper style={[styles.appContent, styles.flex1, {marginTop: this.state.viewportOffsetTop}]}>
                 <HeaderView
                     reportID={reportID}
                     onNavigationMenuButtonClicked={() => Navigation.navigate(ROUTES.HOME)}
@@ -262,6 +254,7 @@ class ReportScreen extends React.Component {
                                     ) : (
                                         <SwipeableView onSwipeDown={Keyboard.dismiss}>
                                             <ReportActionCompose
+                                                progress={this.props.progress}
                                                 onSubmit={this.onSubmitComment}
                                                 reportID={reportID}
                                                 reportActions={this.props.reportActions}
