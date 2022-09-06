@@ -40,6 +40,8 @@ const propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     draftValues: PropTypes.object,
 
+    onFormValidated: PropTypes.func,
+
     ...withLocalizePropTypes,
 };
 
@@ -49,6 +51,7 @@ const defaultProps = {
         error: '',
     },
     draftValues: {},
+    onFormValidated: () => {},
 };
 
 class Form extends React.Component {
@@ -73,6 +76,16 @@ class Form extends React.Component {
      */
     setTouchedInput(inputID) {
         this.touchedInputs[inputID] = true;
+    }
+
+    /**
+     * @param {String} inputID - The inputID of the input
+     */
+    focus(inputID) {
+        if (!this.inputRefs[inputID]) {
+            return;
+        }
+        this.inputRefs[inputID].focus();
     }
 
     submit() {
@@ -111,6 +124,7 @@ class Form extends React.Component {
             Boolean(this.touchedInputs[inputID])
         ));
         this.setState({errors});
+        this.props.onFormValidated(errors);
         return errors;
     }
 
@@ -190,7 +204,7 @@ class Form extends React.Component {
                             isLoading={this.props.formState.isLoading}
                             message={this.props.formState.error}
                             onSubmit={this.submit}
-                            onFixTheErrorsLinkPressed={() => {
+                            onFixTheErrorsPressed={() => {
                                 this.inputRefs[_.first(_.keys(this.state.errors))].focus();
                             }}
                             containerStyles={[styles.mh0, styles.mt5]}
