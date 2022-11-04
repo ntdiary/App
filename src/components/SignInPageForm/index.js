@@ -1,5 +1,6 @@
 import React from 'react';
 import FormElement from '../FormElement';
+import AutofillProvider from '../../vendors/AutofillProvider';
 
 class Form extends React.Component {
     componentDidMount() {
@@ -14,11 +15,13 @@ class Form extends React.Component {
 
     render() {
         return (
-            <FormElement
-                ref={el => this.form = el}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...this.props}
-            />
+            <AutofillProvider>
+                <FormElement
+                    ref={el => this.form = el}
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...this.props}
+                />
+            </AutofillProvider>
         );
     }
 }

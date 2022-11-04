@@ -18,6 +18,7 @@ import variables from '../../styles/variables';
 import Checkbox from '../Checkbox';
 import getSecureEntryKeyboardType from '../../libs/getSecureEntryKeyboardType';
 import CONST from '../../CONST';
+import AutofillContext from '../../vendors/AutofillContext';
 
 class BaseTextInput extends Component {
     constructor(props) {
@@ -52,6 +53,9 @@ class BaseTextInput extends Component {
     }
 
     componentDidMount() {
+        if (this.context) {
+            this.context.addInput(this, 'input', 'state.value', this.setValue);
+        }
         if (this.props.disableKeyboard) {
             this.appStateSubscription = AppState.addEventListener(
                 'change',
@@ -112,6 +116,9 @@ class BaseTextInput extends Component {
         if (!event.isDefaultPrevented()) {
             this.input.focus();
         }
+        if (this.context) {
+            this.context.showDropdown(this);
+        }
     }
 
     onFocus(event) {
@@ -124,6 +131,9 @@ class BaseTextInput extends Component {
         if (this.props.onBlur) { this.props.onBlur(event); }
         this.setState({isFocused: false});
         this.deactivateLabel();
+        if (this.context) {
+            this.context.hideDropdown(this);
+        }
     }
 
     /**
@@ -333,5 +343,6 @@ class BaseTextInput extends Component {
 
 BaseTextInput.propTypes = baseTextInputPropTypes.propTypes;
 BaseTextInput.defaultProps = baseTextInputPropTypes.defaultProps;
+BaseTextInput.contextType = AutofillContext;
 
 export default BaseTextInput;

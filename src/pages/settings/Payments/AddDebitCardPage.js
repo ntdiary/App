@@ -123,10 +123,12 @@ class DebitCardPage extends Component {
                 >
                     <TextInput
                         inputID="nameOnCard"
+                        name="nameOnCard"
                         label={this.props.translate('addDebitCardPage.nameOnCard')}
                     />
                     <TextInput
                         inputID="cardNumber"
+                        name="cardNumber"
                         label={this.props.translate('addDebitCardPage.debitCardNumber')}
                         containerStyles={[styles.mt4]}
                         keyboardType={CONST.KEYBOARD_TYPE.NUMBER_PAD}
@@ -135,6 +137,7 @@ class DebitCardPage extends Component {
                         <View style={[styles.flex1, styles.mr2]}>
                             <TextInput
                                 inputID="expirationDate"
+                                name="expirationDate"
                                 label={this.props.translate('addDebitCardPage.expiration')}
                                 placeholder={this.props.translate('addDebitCardPage.expirationDate')}
                                 keyboardType={CONST.KEYBOARD_TYPE.NUMBER_PAD}
@@ -143,6 +146,7 @@ class DebitCardPage extends Component {
                         <View style={[styles.flex1]}>
                             <TextInput
                                 inputID="securityCode"
+                                name="securityCode"
                                 label={this.props.translate('addDebitCardPage.cvv')}
                                 maxLength={4}
                                 keyboardType={CONST.KEYBOARD_TYPE.NUMBER_PAD}
@@ -174,6 +178,7 @@ class DebitCardPage extends Component {
                     <View style={[styles.mt4]}>
                         <TextInput
                             inputID="password"
+                            name="password"
                             label={this.props.translate('addDebitCardPage.expensifyPassword')}
                             textContentType="password"
                             autoCompleteType={ComponentUtils.PASSWORD_AUTOCOMPLETE_TYPE}
