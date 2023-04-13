@@ -67,6 +67,13 @@ class PasswordPage extends Component {
         };
     }
 
+    componentDidMount() {
+        // just a demo, if we add autoFocus to the current password input, its cursor will lag due to the slide animation.
+        if (typeof window !== 'undefined' && window.document) {
+            window.document.querySelector('#fakeInput').focus();
+        }
+    }
+
     componentWillUnmount() {
         Session.clearAccountMessages();
     }

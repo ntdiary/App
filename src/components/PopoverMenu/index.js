@@ -24,6 +24,7 @@ class PopoverMenu extends PureComponent {
         super(props);
         this.state = {
             focusedIndex: -1,
+            shouldCallBeforeModalHide: false,
         };
         this.resetFocusAndHideModal = this.resetFocusAndHideModal.bind(this);
         this.removeKeyboardListener = this.removeKeyboardListener.bind(this);
@@ -52,6 +53,8 @@ class PopoverMenu extends PureComponent {
      * @param {Object} item
      */
     selectItem(item) {
+        const {shouldCallBeforeModalHide = false} = item;
+        this.setState({shouldCallBeforeModalHide});
         this.selectedItem = item;
         this.props.onItemSelected(item);
     }
@@ -95,6 +98,7 @@ class PopoverMenu extends PureComponent {
                 animationInTiming={this.props.animationInTiming}
                 disableAnimation={this.props.disableAnimation}
                 fromSidebarMediumScreen={this.props.fromSidebarMediumScreen}
+                shouldCallBeforeModalHide={this.state.shouldCallBeforeModalHide}
             >
                 <View style={this.props.isSmallScreenWidth ? {} : styles.createMenuContainer}>
                     {!_.isEmpty(this.props.headerText) && (

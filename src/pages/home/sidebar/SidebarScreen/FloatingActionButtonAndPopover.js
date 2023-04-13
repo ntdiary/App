@@ -177,17 +177,20 @@ class FloatingActionButtonAndPopover extends React.Component {
                             icon: Expensicons.ChatBubble,
                             text: this.props.translate('sidebarScreen.newChat'),
                             onSelected: () => Navigation.navigate(ROUTES.NEW_CHAT),
+                            shouldCallBeforeModalHide: true,
                         },
                         {
                             icon: Expensicons.Users,
                             text: this.props.translate('sidebarScreen.newGroup'),
                             onSelected: () => Navigation.navigate(ROUTES.NEW_GROUP),
+                            shouldCallBeforeModalHide: true,
                         },
                         ...(Permissions.canUsePolicyRooms(this.props.betas) && workspaces.length ? [
                             {
                                 icon: Expensicons.Hashtag,
                                 text: this.props.translate('sidebarScreen.newRoom'),
                                 onSelected: () => Navigation.navigate(ROUTES.WORKSPACE_NEW_ROOM),
+                                shouldCallBeforeModalHide: true,
                             },
                         ] : []),
                         ...(Permissions.canUseIOUSend(this.props.betas) ? [
