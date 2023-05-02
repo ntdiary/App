@@ -7,5 +7,5 @@ export default {
     LOADING: 'Loading',
     REPORT: 'Report',
     NOT_FOUND: 'not-found',
-    TRANSITION_BETWEEN_APPS: 'TransitionBetweenApps',
+    USER_AUTH_REDIRECT: 'UserAuthRedirect',
 };
