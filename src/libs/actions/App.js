@@ -15,7 +15,6 @@ import ROUTES from '../../ROUTES';
 import * as SessionUtils from '../SessionUtils';
 import getCurrentUrl from '../Navigation/currentUrl';
 import * as Session from './Session';
-import * as Browser from '../Browser';
 
 let currentUserAccountID;
 let currentUserEmail = '';
@@ -222,7 +221,7 @@ function setUpPoliciesAndNavigate(session) {
     const policyName = url.searchParams.get('policyName');
 
     // Sign out the current user if we're transitioning with a different user
-    const isTransitioning = Str.startsWith(url.pathname, Str.normalizeUrl(ROUTES.TRANSITION_BETWEEN_APPS));
+    const isTransitioning = Str.startsWith(url.pathname, Str.normalizeUrl(ROUTES.USER_AUTH_REDIRECT));
     if (isLoggingInAsNewUser && isTransitioning) {
         Session.signOut();
     }
@@ -288,26 +287,6 @@ function openProfile() {
     Navigation.navigate(ROUTES.SETTINGS_PROFILE);
 }
 
-function beginDeepLinkRedirect() {
-    if (!currentUserAccountID) {
-        Browser.openRouteInDesktopApp();
-        return;
-    }
-
-    // eslint-disable-next-line rulesdir/no-api-side-effects-method
-    API.makeRequestWithSideEffects(
-        'OpenOldDotLink', {shouldRetry: false}, {},
-    ).then((response) => {
-        Browser.openRouteInDesktopApp(response.shortLivedAuthToken, currentUserEmail);
-    });
-}
-
-function beginDeepLinkRedirectAfterTransition() {
-    Navigation.isTransitionEnd().then(() => {
-        beginDeepLinkRedirect();
-    });
-}
-
 export {
     setLocale,
     setLocaleAndNavigate,
@@ -316,6 +295,4 @@ export {
     openProfile,
     openApp,
     reconnectApp,
-    beginDeepLinkRedirect,
-    beginDeepLinkRedirectAfterTransition,
 };

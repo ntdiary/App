@@ -621,6 +621,22 @@ function authenticatePusher(socketID, channelName, callback) {
     });
 }
 
+function getShortLivedAuthToken() {
+    // eslint-disable-next-line rulesdir/no-api-side-effects-method
+    API.makeRequestWithSideEffects(
+        'OpenOldDotLink', {shouldRetry: false}, {},
+    ).then((response) => {
+        const {shortLivedAuthToken} = response;
+        Onyx.merge(ONYXKEYS.SESSION, {shortLivedAuthToken});
+    });
+}
+
+function getShortLivedAuthTokenAfterTransition() {
+    Navigation.isTransitionEnd().then(() => {
+        getShortLivedAuthToken();
+    });
+}
+
 export {
     beginSignIn,
     updatePasswordAndSignin,
@@ -643,4 +659,6 @@ export {
     reauthenticatePusher,
     invalidateCredentials,
     invalidateAuthToken,
+    getShortLivedAuthToken,
+    getShortLivedAuthTokenAfterTransition,
 };

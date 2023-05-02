@@ -27,7 +27,7 @@ export default {
             // Main Routes
             SetPassword: ROUTES.SET_PASSWORD_WITH_VALIDATE_CODE,
             ValidateLogin: ROUTES.VALIDATE_LOGIN,
-            [SCREENS.TRANSITION_BETWEEN_APPS]: ROUTES.TRANSITION_BETWEEN_APPS,
+            [SCREENS.USER_AUTH_REDIRECT]: ROUTES.USER_AUTH_REDIRECT,
             Concierge: ROUTES.CONCIERGE,
 
             // Modal Screens
